@@ -1,0 +1,142 @@
+# run broadcast osascript
+alias broadcast="osascript ~/Desktop/Doodling\ Dev\ Online/Broadcast/setup.scpt"
+
+# flush DNS
+alias flushdns="dscacheutil -flushcache && killall -HUP mDNSResponder"
+
+# use trash util
+# alias t="trash"
+
+# make mkdir verbose & create any parent dirs as needed
+alias mkdir="mkdir -pv"
+
+# point to home without needing to type the ~ every time
+alias ngrok="~/.ngrok"
+
+# kill the ts language server when it misbehaves
+alias killts="killall typescript-language-server"
+
+# config files
+alias zshconfig="~/dev/nvim-osx64/bin/nvim ~/.zshrc"
+alias aliasconfig="~/dev/nvim-osx64/bin/nvim ~/.aliases"
+alias vimconfig="~/dev/nvim-osx64/bin/nvim ~/.config/nvim/init.vim"
+
+# open nvim to this dir
+alias v="~/dev/nvim-osx64/bin/nvim ."
+
+# open nvim
+alias vi="~/dev/nvim-osx64/bin/nvim"
+alias nv="~/dev/nvim-osx64/bin/nvim"
+alias :e="~/dev/nvim-osx64/bin/nvim"
+
+# show hidden files with k
+alias l="k -a"
+alias j="exa --modified --long --grid --git --all"
+
+# shorten cd command
+alias c="cd"
+
+# go up a directory
+# alias ..="cd .."
+
+# rails devs type this a lot
+alias be="bundle exec"
+alias rake="bundle exec rake"
+
+# start a simple ruby server from this dir
+alias rserv="ruby -run -e httpd -- -p 5000 ."
+
+# yarn commands
+alias ya="yarn add --DEV"
+alias yi="yarn install"
+alias ys="yarn start"
+alias yt="yarn test"
+
+# npm commands
+alias npmi="npm install"
+alias npms="npm start"
+
+# tools
+alias cat="bat"
+
+# shorten webpack command
+alias wp="webpack"
+
+# make tags in this dir recursively
+alias tags="$(brew --prefix universal-ctags)/bin/ctags -R --options=$HOME/.ctags.d/default.ctags -f .git/tags ."
+
+# docker commands
+alias dc="docker-compose"
+alias dcup="docker-compose up -d"
+alias dcr="docker-compose run --rm"
+alias dcx="docker-compose stop && docker-compose rm --force"
+
+alias rn="~/.ranger/ranger ."
+
+alias met="npms -- --reset-cache"
+
+# TMUX {{{
+alias td="tmux detach"
+alias tas="tmux attach-session -t"
+alias tns="tmux new-session"
+
+# GIT {{{
+alias conflicted="~/dev/nvim-osx64/bin/nvim +Conflicted"
+alias gs="git status --short"
+alias ga="git add"
+alias cob="git checkout -b"
+alias co="git checkout"
+alias gcm="git commit -m"
+alias gpo="git push origin"
+alias glo="git pull origin"
+alias glom="git pull origin master"
+alias gfo="git fetch origin"
+alias m!="git checkout master && git pull origin master"
+alias dev!="git checkout dev && git pull origin dev"
+alias gsquash="git fetch; git reset --mixed origin/master; git merge --squash HEAD@{1}"
+alias -g fwl="--force-with-lease"
+alias gri="git rebase -i"
+alias mconflicts="git add . && git commit -m 'merge conflicts'"
+
+# PROJECTS {{{
+alias dev="cd ~/dev"
+alias grbr="git rebase release"
+
+# MIRS
+alias graph="rake graph && cp schema.json ../mirs-frontend-xwing/"
+
+# MISC {{{
+alias s="be rails s"
+alias ber="be rake"
+
+bindkey '^i' expand-or-complete-prefix
+alias keys="ssh-add -K ~/.ssh/id_rsa && ssh-add -K ~/.ssh/rsa_ul"
+
+alias rs="RUBYOPT='-W0' rails spec"
+# if type "docker" > /dev/null; then
+#   alias docker-cleanup="docker rmi $(docker images | grep "<none>" | awk {'print $3'})"
+# fi
+
+alias restartvim="mv ~/.config/nvim/init.vim ~/.config/nvim/_init.vim && mv ~/.config/nvim/restart_init.vim ~/.config/nvim/init.vim"
+alias norestartvim="mv ~/.config/nvim/init.vim ~/.config/nvim/restart_init.vim && mv ~/.config/nvim/_init.vim ~/.config/nvim/init.vim"
+
+alias mg="marker get" # terminal command palette
+# alias rg="/usr/bin/rg"
+
+alias sshkey="eval \"$(ssh-agent -s)\" && ssh-add -K ~/.ssh/id_rsa_madeintandem"
+
+alias duckworth="ssh AjiSlater@192.168.0.67"
+
+alias wiki="~/dev/nvim-osx64/bin/nvim ~/.wiki/index.md -c 'setlocal conceallevel=0' -c 'NV'"
+alias notes="~/dev/nvim-osx64/bin/nvim ~/.wiki/index.md -c 'setlocal conceallevel=0' -c 'NV'"
+alias nb="~/dev/nvim-osx64/bin/nvim ~/.wiki/index.md -c 'setlocal conceallevel=0' -c 'NV'"
+alias nv="~/dev/nvim-osx64/bin/nvim ~/.wiki/index.md -c 'setlocal conceallevel=0' -c 'NV'"
+
+# MIRS aws token script
+alias awst=". ~/dev/get_session_token_mfa.sh"
+
+alias yolo="rails db:drop db:create db:migrate && rails db:seed"
+
+# task warrior
+alias t="task"
+alias tl="task list"
