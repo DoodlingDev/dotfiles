@@ -66,18 +66,6 @@ export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE=fg=3
 echo "sourcing oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 
-### MIRS 1.1
-echo "Adding MIRS cli to path"
-export PATH="/Users/aji/dev/mirs-cli/bin:${PATH}"
-ms() {
-  eval "$(mirs aws current-session-script)"
-}
-ml() {
-  eval "$(mirs aws login)"
-}
-
-
-
 ### NVM
 echo "Loading NVM"
 
@@ -87,17 +75,6 @@ export NVM_DIR="$HOME/.nvm"
 echo "Loading NVM bash completion"
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-echo "Loading FZF"
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-echo "Setting up ssh keys"
-eval "$(ssh-agent -s)" && sshkey
-
-echo "Initializing p10k prompt"
-echo "To customize prompt, run `p10k configure` or edit ~/.p10k.zsh."
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# place this after nvm initialization!
 autoload -U add-zsh-hook
 load-nvmrc() {
   if [[ -f .nvmrc && -r .nvmrc ]]; then
@@ -110,15 +87,33 @@ load-nvmrc() {
 add-zsh-hook chpwd load-nvmrc
 load-nvmrc
 
+### FZF
+echo "Loading FZF"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+### SSH
+echo "Setting up ssh keys"
+eval "$(ssh-agent -s)" && sshkey
+
+### Powerline
+echo "Initializing p10k prompt"
+echo "To customize prompt, run `p10k configure` or edit ~/.p10k.zsh."
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Use vi-like commands for command line editing
 set -o vi
 
+### Marker
 echo "Initializing Marker: The terminal command palette"
 [[ -s "$HOME/.local/share/marker/marker.sh" ]] && source "$HOME/.local/share/marker/marker.sh"
 
+### RBENV
 echo "Initializing rbenv"
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 
+### lastpass command line password retreiver
+# TODO: make into a gem or something
 function lpf {
   lpass ls | grep -o -m 1 "$1.*[0-9]" | sed 's/.*\[id\: //'
 }
@@ -148,8 +143,10 @@ function lpp {
 
 clear
 
+# setup iterm2 shell integration
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+# OpenSsl installation error fixes :crossed-fingers:
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 export LDFLAGS="-L/usr/local/opt/openssl@1.1/lib"
