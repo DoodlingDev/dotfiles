@@ -57,6 +57,7 @@ set clipboard=unnamed       " *
 set colorcolumn=80          " show 80 column by changing bg color
 set termguicolors           " enable 24-bit colors in the TUI
 set foldmethod=syntax
+set completeopt=menuone,noinsert,noselect
 " " }}}
 
 " Plugins {{{
@@ -64,18 +65,20 @@ let g:plugin_dir = '~/.config/nvim/plugged'      " plugin control with Vim Plug
 call plug#begin('~/.config/nvim/plugged')        " Begin Vim Plug
 
 Plug 'drewtempelmeyer/palenight.vim'
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}                                              "
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/nvim-compe'                        " auto completion
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}  " LSP & completion
 
 Plug 'nvim-lua/popup.nvim'
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim'
+Plug 'glepnir/galaxyline.nvim'
+
+" Plug 'Raimondi/delimitMate'                      " auto pair delimiters
+Plug 'cohama/lexima.vim'                         " smartly auto pair delimiters
 
 Plug 'benizi/vim-automkdir'                      " automatically make dirs
-Plug 'jiangmiao/auto-pairs'                      " auto-pairs
-Plug 'ervandew/supertab'                         " better <tab>
+" Plug 'ervandew/supertab'                         " better <tab>
 Plug 'tpope/vim-commentary'                      " easy commenting
 Plug 'tpope/vim-surround'                        " add surround to text objects
 Plug 'tpope/vim-fugitive'                        " vim-master's git
@@ -114,8 +117,11 @@ Plug 'godlygeek/tabular'                         " align text, dep of vim-markdo
 Plug 'akiyosi/gonvim-fuzzy'
 Plug 'folke/which-key.nvim'
 Plug 'monsonjeremy/onedark.nvim'
+Plug 'kyazdani42/nvim-web-devicons'
 
 call plug#end()                                  " }}}
+
+luafile ~/.config/nvim/eviline.lua
 
 lua << EOF
   require("which-key").setup {
@@ -123,7 +129,26 @@ lua << EOF
     -- or leave it empty to use the default settings
     -- refer to the configuration section below
   }
-  require'lspconfig'.tsserver.setup{}
+  require'lspconfig'.tsserver.setup{
+    handlers = {
+      ["textDocument/publishDiagnostics"] = vim.lsp.with(
+        vim.lsp.diagnostic.on_publish_diagnostics, {
+            --Disable virtual text
+            virtual_text = false
+          }
+      )
+    }
+  }
+  require'lspconfig'.solargraph.setup{
+    handlers = {
+      ["textDocument/publishDiagnostics"] = vim.lsp.with(
+        vim.lsp.diagnostic.on_publish_diagnostics, {
+            --Disable virtual text
+            virtual_text = false
+          }
+      )
+    }
+  }
 
   require'compe'.setup {
     enabled = true;
@@ -150,19 +175,107 @@ lua << EOF
     };
   }
 
+local t = function(str)
+  return vim.api.nvim_replace_termcodes(str, true, true, true)
+end
+
+local check_back_space = function()
+    local col = vim.fn.col('.') - 1
+    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+        return true
+    else
+        return false
+    end
+end
+
+-- Use (s-)tab to:
+--- move to prev/next item in completion menuone
+--- jump to prev/next snippet's placeholder
+_G.tab_complete = function()
+  if vim.fn.pumvisible() == 1 then
+    return t "<C-n>"
+  elseif check_back_space() then
+    return t "<Tab>"
+  end
+end
+_G.s_tab_complete = function()
+  if vim.fn.pumvisible() == 1 then
+    return t "<C-p>"
+  else
+    return t "<S-Tab>"
+  end
+end
+--
+ vim.api.nvim_set_keymap("i", "<Tab>", "v:lua.tab_complete()", {expr = true})
+ vim.api.nvim_set_keymap("s", "<Tab>", "v:lua.tab_complete()", {expr = true})
+ vim.api.nvim_set_keymap("i", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
+ vim.api.nvim_set_keymap("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
+
   require'nvim-treesitter.configs'.setup {
     ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
     ignore_install = { "javascript" }, -- List of parsers to ignore installing
+    indent = { enable = true },
     highlight = {
       enable = true,              -- false will disable the whole extension
       disable = { "c", "rust" },  -- list of language that will be disabled
     },
   }
+
+  local nvim_lsp = require('lspconfig')
+
+--  local on_attach = function(client, bufnr)
+    --require('completion').on_attach()
+
+--    local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+--    local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+--
+--    -- Mappings
+--    local opts = { noremap=true, silent=true }
+--    buf_set_keymap('n', 'gD', '<Cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+--    buf_set_keymap('n', 'gd', '<Cmd>lua vim.lsp.buf.definition()<CR>', opts)
+--    buf_set_keymap('n', 'K', '<Cmd>lua vim.lsp.buf.hover()<CR>', opts)
+--    buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+--    buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+--    buf_set_keymap('n', '<space>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+--    buf_set_keymap('n', '<space>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+--    buf_set_keymap('n', '<space>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+--    buf_set_keymap('n', '<space>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+--    buf_set_keymap('n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+--    buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+--    buf_set_keymap('n', '<space>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+--    buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+--    buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+--    buf_set_keymap('n', '<space>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+--
+--    -- Set some keybinds conditional on server capabilities
+--    if client.resolved_capabilities.document_formatting then
+--        buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+--    elseif client.resolved_capabilities.document_range_formatting then
+--        buf_set_keymap("n", "<space>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opts)
+--    end
+--
+--    -- Set autocommands conditional on server_capabilities
+--    if client.resolved_capabilities.document_highlight then
+--        require('lspconfig').util.nvim_multiline_command [[
+--        :hi LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
+--        :hi LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
+--        :hi LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
+--        augroup lsp_document_highlight
+--            autocmd!
+--            autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+--            autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+--        augroup END
+--        ]]
+--    end
+
 EOF
+
+
 
 " Global variables {{{
 let g:SuperTabDefaultCompletionType = "<c-n>"
 let g:closetag_filenames = '*.html,*.js,*.xml'
+let g:completion_matching_strategy_list = ['exact', 'substring', 'fuzzy']
 " }}}
 
 command! -bang -nargs=* Ag
@@ -173,10 +286,17 @@ command! -bang -nargs=* Ag
 
 " auto commands {{{
 autocmd BufWritePre * :%s/\s\+$//e               " remove trailing whitespace
+autocmd CursorHold * lua vim.lsp.diagnostic.show_line_diagnostics()
+autocmd CursorHoldI * lua vim.lsp.diagnostic.show_line_diagnostics()
 
 autocmd BufWritePre *.{jsx,es6,js,tsx} :Prettier
 autocmd BufWritePost *.{jsx,es6,js,tsx} :e %
 autocmd BufRead,BufNewFile *.vim set foldmethod=marker " viml folding
+
+" flash a highlight for what selection was just yanked
+autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank()
+
+"autocmd BufEnter * lua require'completion'.on_attach()
 
 " commented out because team isn't using prettier-ruby
 " TODO: Figure out rubocop autoformat in vim
@@ -232,10 +352,12 @@ nnoremap <leader>q :q!<CR>
  " FZF search pattern recursively from cwd
 nnoremap <leader>sa :Ag<cr>
 command! -bang -nargs=* Ag call fzf#vim#ag(<q-args>, {'options': '--delimiter : --nth 4..'}, <bang>0)
+ " search command palette
+nnoremap <leader>sc :Commands<cr>
  " FZF search tags
 nnoremap <leader>v :silent vsplit<cr>
  " quick save
-nnoremap <leader>w :silent w<CR>:echo 'saved!'<CR>
+nnoremap <leader>w :w<CR>
  " replace word under cursor, press . to repeat forwards
 nnoremap <Leader>y :let @+=expand("#")<CR>:echo 'Relative path copied to clipboard.'<CR>
  " copy current buffer absolute path to clipboard
@@ -248,16 +370,19 @@ nnoremap <leader>z <c-z>
 nnoremap U <C-R>
 
 " yank visually selected text to system clipboard
-" vnoremap Y "+y
+vnoremap <leader>y "+y
 
 " easymotion at the press of a key
-map J <Plug>(easymotion-j)
-map K <Plug>(easymotion-k)
-map L <Plug>(easymotion-lineforward)
-map H <Plug>(easymotion-linebackward)
+nnoremap J <Plug>(easymotion-j)
+nnoremap K <Plug>(easymotion-k)
+
+" moving front/end of line with home row
+nnoremap L $
+nnoremap H _
 
 " exit insert mode without escape
 inoremap jk <esc>
+inoremap kj <esc>
 
 "stop that stupid window from popping up
 map q: :q
