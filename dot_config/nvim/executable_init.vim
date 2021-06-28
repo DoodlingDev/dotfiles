@@ -373,8 +373,8 @@ nnoremap U <C-R>
 vnoremap <leader>y "+y
 
 " easymotion at the press of a key
-nnoremap J <Plug>(easymotion-j)
-nnoremap K <Plug>(easymotion-k)
+nmap J <Plug>(easymotion-j)
+nmap K <Plug>(easymotion-k)
 
 " moving front/end of line with home row
 nnoremap L $
