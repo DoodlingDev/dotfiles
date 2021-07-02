@@ -382,7 +382,6 @@ nnoremap H _
 
 " exit insert mode without escape
 inoremap jk <esc>
-inoremap kj <esc>
 
 "stop that stupid window from popping up
 map q: :q
